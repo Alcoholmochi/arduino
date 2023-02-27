@@ -1,12 +1,13 @@
-int count = 0;
-int tilt = 2;
-int brush_button = 3;
-int state = 0;
-int buttonstate;
-int goal = 200;
-int buz = 13;
+// 아두이노 코드 
 
-byte grapeChar[] = {
+int count = 0;  //brush count(score)
+int tilt = 2;  //tilt sensor pin num
+int brush_button = 3;  //brush complete button pin num
+int state = 0;  //var for switch falling edge
+int buttonstate;  // var for switch falling edge
+int goal = 1000; //goal of brush score
+
+byte grapeChar[] = {  //grape icon 5*8 i2c display binary code
   B01000,
   B00100,
   B01110,
@@ -18,22 +19,21 @@ byte grapeChar[] = {
 };
 
 #include <Wire.h> 
-#include <LiquidCrystal_I2C.h>
+#include <LiquidCrystal_I2C.h>  //library for lcd display
 
 LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(tilt, INPUT);
+  Serial.begin(9600);  //serial begin
+  pinMode(tilt, INPUT);  
   pinMode(brush_button,INPUT_PULLUP);
-  pinMode(buz,OUTPUT);
-  lcd.init();
-  lcd.createChar(0, grapeChar);
+  lcd.init();   //initialize lcd
+  lcd.createChar(0, grapeChar);  //make icon grape
 }
 
 
 void loop() {
-  if(digitalRead(tilt)==LOW){
+  if(digitalRead(tilt)==LOW){  //when tilt
     count++;
     lcd.setCursor(3,1);
     lcd.print(count-20);
@@ -45,27 +45,25 @@ void loop() {
     lcd.write(0);
   }
   if(count<=20){
-    lcd.clear();
+    lcd.clear();  //no lcd indicate score under 20
   }
-  if(count==20){
+  if(count==20){  //when count 20, score and lcd are start
     lcd.backlight();
     lcd.setCursor(0,0);
     lcd.print("brush your teeth!");
-   
   }
-  if(count==goal+20){
+  if(count==goal+20){  //when brush finish
     lcd.clear();
     lcd.setCursor(1,0);
     lcd.print("Brush Finished");
     lcd.setCursor(3,1);
     lcd.print(count-20);
-    tone(buz,440,125);
-   
+    
   }
-  buttonstate=digitalRead(brush_button);
+  buttonstate=digitalRead(brush_button); //brush complete button
   if(buttonstate == HIGH){
     if (state==0){
-      delay(10);
+      delay(10);  //delay for debouncing
       state = 1;
     }
   }
@@ -73,14 +71,16 @@ void loop() {
     if (state == 1){
       
       if(count+20>=goal){
-        Serial.println(count+20);
+        Serial.println(count+20);  //send count value to serial
       }
       delay(10);
       state=0;
       count=0;
       lcd.noBacklight();
-      lcd.clear();
+      lcd.clear();   //disable lcd
     }
   }
   delay(10);
 }
+//02:14
+//comment at 06:44
